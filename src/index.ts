@@ -1,26 +1,31 @@
 import 'reflect-metadata'
-import { MikroORM } from '@mikro-orm/core'
 import { __prod__ } from './constants'
-
-import mikroConfig from './mikro-orm.config'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
+import mongoose from 'mongoose'
 import { buildSchema } from 'type-graphql'
-import { HelloResolver } from './resolvers/hello'
 import { PostResolver } from './resolvers/post'
 
 const main = async () => {
-  const orm = await MikroORM.init(mikroConfig)
-  orm.getMigrator().up()
+  // Connect to the db
+  try {
+    mongoose.connect('mongodb://localhost/lireddit', {
+      useNewUrlParser: true,
+    })
+    console.log('Connected to Mongodb database')
+  } catch (err) {
+    console.error(`💣ERROR:`, err)
+  }
 
   const app = express()
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver],
+      resolvers: [PostResolver],
       validate: false,
     }),
-    context: () => ({ em: orm.em }),
+    // Pass db as context
+    context: () => ({}),
   })
 
   apolloServer.applyMiddleware({ app })
