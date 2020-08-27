@@ -4,7 +4,7 @@ import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
 import mongoose from 'mongoose'
 import { buildSchema } from 'type-graphql'
-import { PostResolver } from './resolvers/post'
+import { PostResolver, UserResolver } from './resolvers'
 
 const main = async () => {
   // Connect to the db
@@ -21,7 +21,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [PostResolver],
+      resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
     // Pass db as context

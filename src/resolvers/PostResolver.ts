@@ -1,7 +1,7 @@
 import { Resolver, Query, Arg, Mutation } from 'type-graphql'
 import { DocumentQuery, Document } from 'mongoose'
 import { Post } from '../types/Post'
-import PostModel from '../models/Post'
+import PostModel from '../models/PostModel'
 
 @Resolver()
 export class PostResolver {

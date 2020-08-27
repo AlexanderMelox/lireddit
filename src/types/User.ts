@@ -1,10 +1,10 @@
 import { ObjectType, Field } from 'type-graphql'
 
 @ObjectType()
-export class Post {
+export class User {
   @Field(() => String)
   readonly id!: string
 
   @Field(() => String)
-  title!: string
+  username!: string
 }
