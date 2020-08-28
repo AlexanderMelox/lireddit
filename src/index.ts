@@ -2,20 +2,22 @@ import 'reflect-metadata'
 import { __prod__ } from './constants'
 import express from 'express'
 import { ApolloServer } from 'apollo-server-express'
-import mongoose from 'mongoose'
+import { createConnection, Connection } from 'typeorm'
 import { buildSchema } from 'type-graphql'
 import { PostResolver, UserResolver } from './resolvers'
+import { Post, User } from './entity'
 
 const main = async () => {
   // Connect to the db
-  try {
-    mongoose.connect('mongodb://localhost/lireddit', {
-      useNewUrlParser: true,
-    })
-    console.log('Connected to Mongodb database')
-  } catch (err) {
-    console.error(`💣ERROR:`, err)
-  }
+  const connection: Connection = await createConnection({
+    type: 'mongodb',
+    host: 'localhost',
+    port: 27017,
+    database: 'lireddit',
+    entities: [Post, User],
+    synchronize: false,
+    logging: false,
+  })
 
   const app = express()
 
@@ -24,8 +26,7 @@ const main = async () => {
       resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
-    // Pass db as context
-    context: () => ({}),
+    context: () => ({ connection }),
   })
 
   apolloServer.applyMiddleware({ app })
@@ -38,6 +39,4 @@ const main = async () => {
   })
 }
 
-main().catch((err) => {
-  console.error(err)
-})
+main().catch(console.error)
