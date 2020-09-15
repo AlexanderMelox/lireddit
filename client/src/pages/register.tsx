@@ -1,17 +1,34 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Formik, Form } from 'formik'
 import { Wrapper } from '../components/Wrapper'
 import { InputField } from '../components/InputField'
 import { Box, Button } from '@chakra-ui/core'
+import { useRegisterMutation } from '../generated/graphql'
+import { toErrorMap } from '../utils/toErrorMap'
+import { useRouter } from 'next/router'
 
 interface registerProps {}
 
-export const Register: React.FC<registerProps> = ({}) => {
+export const RegisterPage: React.FC<registerProps> = ({}) => {
+  const router = useRouter()
+  const [, register] = useRegisterMutation()
+
+  const onRegister = useCallback((values) => {
+    return register({ options: values })
+  }, [])
+
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ username: '', password: '' }}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={async (values, { setErrors }) => {
+          const response = await onRegister(values)
+          if (response.data?.registerUser.errors) {
+            setErrors(toErrorMap(response.data.registerUser.errors))
+          } else if (response.data?.registerUser.user) {
+            router.push('/')
+          }
+        }}
       >
         {({ values, handleChange, isSubmitting }) => (
           <Form>
@@ -43,4 +60,4 @@ export const Register: React.FC<registerProps> = ({}) => {
   )
 }
 
-export default Register
+export default RegisterPage
