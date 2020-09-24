@@ -11,6 +11,7 @@ import redis from 'redis'
 import session from 'express-session'
 import connectReddis from 'connect-redis'
 import { MyContext } from './types'
+import cors from 'cors'
 
 const main = async () => {
   // Connect to the db
@@ -32,6 +33,12 @@ const main = async () => {
   const redisClient = redis.createClient()
   const tenYears = 1000 * 60 * 60 * 24 * 365 * 10
 
+  app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    })
+  )
   app.use(
     session({
       name: 'qid',
@@ -59,7 +66,10 @@ const main = async () => {
     context: ({ req, res }): MyContext => ({ connection, manager, req, res }),
   })
 
-  apolloServer.applyMiddleware({ app })
+  apolloServer.applyMiddleware({
+    app,
+    cors: false,
+  })
 
   app.get('/', (_, res) => {
     res.send('hello')
